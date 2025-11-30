@@ -9,15 +9,11 @@ const { Pool } = pkg;
 
 const app = express();
 
-
 app.use(cors());
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 });
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -31,10 +27,8 @@ app.get("/VacancyData", async (req, res) => {
     let Vacancy = null;
     if (!isNaN(id)) {
       Vacancy = await pool.query(`SELECT * FROM vacancies where id = ${id}`);
-     
     } else {
       Vacancy = await pool.query("select * from vacancies");
-       
     }
     res.json(Vacancy.rows);
   } catch (err) {
@@ -48,8 +42,6 @@ app.post("/Apply", upload.single("cv"), async (req, res) => {
     const cv = req.file;
 
     if (!cv) return res.status(400).json({ error: "CV is required" });
-
-    
 
     const query = `
       INSERT INTO resumes (firstname, lastname, email, phonenumber, vacancyid, resume)
@@ -115,7 +107,7 @@ app.get("/download/:id", async (req, res) => {
 
     const file = result.rows[0].resume;
     const { firstname, lastname } = result.rows[0];
-    
+
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -141,7 +133,6 @@ app.get("/open/:id", async (req, res) => {
 
     const file = result.rows[0].resume;
     const { firstname, lastname } = result.rows[0];
-   
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -165,9 +156,7 @@ app.get("/ResumeDates", async (req, res) => {
               ORDER BY date DESC;
               `);
     res.json(response.rows);
-  } catch (err) {
-    
-  }
+  } catch (err) {}
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));

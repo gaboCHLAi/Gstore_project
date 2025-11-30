@@ -23,8 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-backend/.env
-backend/*.env
+BackEnd/.env
+BackEnd/*.env
 
-frontend/.env
-frontend/*.env
+FrontEnd/.env
+FrontEnd/*.env
